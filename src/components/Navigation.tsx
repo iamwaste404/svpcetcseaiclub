@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, X, Code, Users, Calendar, User, Info, Mail, Image } from "lucide-react";
+import svpcetLogo from "@/assets/svpcet-logo.jpeg";
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -22,11 +23,11 @@ const Navigation = () => {
     <nav className="bg-background/80 backdrop-blur-md border-b border-border/50 sticky top-0 z-50">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center h-16">
-          <Link to="/" className="flex items-center space-x-2 font-poppins font-bold text-xl">
-            <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
-              <Code className="w-5 h-5 text-primary-foreground" />
+          <Link to="/" className="flex items-center space-x-3 font-poppins font-bold text-xl">
+            <div className="w-10 h-10 rounded-lg overflow-hidden border border-border/20">
+              <img src={svpcetLogo} alt="SVPCET Logo" className="w-full h-full object-cover" />
             </div>
-            <span className="bg-gradient-hero bg-clip-text text-transparent">Coding Club</span>
+            <span className="bg-gradient-hero bg-clip-text text-transparent">SVPCET Clubs</span>
           </Link>
 
           {/* Desktop Navigation */}
@@ -49,7 +50,7 @@ const Navigation = () => {
               );
             })}
             <Button asChild variant="hero" size="sm">
-              <Link to="/register">Join Now</Link>
+              <Link to="/auth">Sign In</Link>
             </Button>
           </div>
 
@@ -88,7 +89,7 @@ const Navigation = () => {
                 );
               })}
               <Button asChild variant="hero" size="sm" className="mt-4">
-                <Link to="/register" onClick={() => setIsOpen(false)}>Join Now</Link>
+                <Link to="/auth" onClick={() => setIsOpen(false)}>Sign In</Link>
               </Button>
             </div>
           </div>
