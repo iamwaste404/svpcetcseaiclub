@@ -4,8 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { useNavigate } from "react-router-dom";
-import { User, Users, Calendar, Megaphone, LogOut, Plus, Minus, Star } from "lucide-react";
+import { useNavigate, Link } from "react-router-dom";
+import { User, Users, Calendar, Megaphone, LogOut, Plus, Minus, Star, Shield } from "lucide-react";
 import { User as SupabaseUser } from "@supabase/supabase-js";
 
 interface Profile {
@@ -50,6 +50,7 @@ const Dashboard = () => {
   const [clubs, setClubs] = useState<Club[]>([]);
   const [events, setEvents] = useState<Event[]>([]);
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -95,6 +96,15 @@ const Dashboard = () => {
       if (profileData) {
         setProfile(profileData);
       }
+
+      // Check if user is admin
+      const { data: adminData } = await supabase
+        .from('admin_roles')
+        .select('*')
+        .eq('user_id', userId)
+        .single();
+      
+      setIsAdmin(!!adminData);
 
       // Load clubs with membership status
       const { data: clubsData } = await supabase
@@ -291,10 +301,20 @@ const Dashboard = () => {
             </h1>
             <p className="text-muted-foreground">Manage your clubs, events, and stay updated with announcements.</p>
           </div>
-          <Button onClick={handleLogout} variant="outline" size="sm">
-            <LogOut className="w-4 h-4 mr-2" />
-            Logout
-          </Button>
+          <div className="flex items-center gap-3">
+            {isAdmin && (
+              <Button asChild variant="hero" size="sm">
+                <Link to="/admin">
+                  <Shield className="w-4 h-4 mr-2" />
+                  Admin Panel
+                </Link>
+              </Button>
+            )}
+            <Button onClick={handleLogout} variant="outline" size="sm">
+              <LogOut className="w-4 h-4 mr-2" />
+              Logout
+            </Button>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

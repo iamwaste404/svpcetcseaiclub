@@ -14,6 +14,30 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_roles: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          role?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       announcements: {
         Row: {
           club_id: string | null
@@ -127,8 +151,10 @@ export type Database = {
           current_participants: number | null
           description: string | null
           event_date: string
+          featured_image: string | null
           id: string
           max_participants: number | null
+          photo_urls: string[] | null
           registration_deadline: string | null
           title: string
         }
@@ -138,8 +164,10 @@ export type Database = {
           current_participants?: number | null
           description?: string | null
           event_date: string
+          featured_image?: string | null
           id?: string
           max_participants?: number | null
+          photo_urls?: string[] | null
           registration_deadline?: string | null
           title: string
         }
@@ -149,8 +177,10 @@ export type Database = {
           current_participants?: number | null
           description?: string | null
           event_date?: string
+          featured_image?: string | null
           id?: string
           max_participants?: number | null
+          photo_urls?: string[] | null
           registration_deadline?: string | null
           title?: string
         }
