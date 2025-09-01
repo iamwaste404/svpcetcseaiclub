@@ -116,6 +116,17 @@ const Auth = () => {
           title: "Registration Successful!",
           description: "Please check your email to verify your account.",
         });
+        
+        // Switch to login mode after successful registration
+        setIsLogin(true);
+        setEmail("");
+        setPassword("");
+        setFullName("");
+        setRollNumber("");
+        setPhoneNumber("");
+        setBranch("");
+        setYear("");
+        setSelectedClub("");
       }
     } catch (error: any) {
       toast({
