@@ -46,6 +46,27 @@ export type Database = {
           },
         ]
       }
+      branches: {
+        Row: {
+          code: string
+          created_at: string
+          id: string
+          name: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          id?: string
+          name: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
       clubs: {
         Row: {
           created_at: string
@@ -145,36 +166,56 @@ export type Database = {
       }
       profiles: {
         Row: {
+          branch: string | null
           created_at: string
           email: string
           full_name: string
           id: string
+          phone_number: string | null
           roll_number: string | null
+          selected_club_id: string | null
           skills: string | null
           updated_at: string
           user_id: string
+          year: string | null
         }
         Insert: {
+          branch?: string | null
           created_at?: string
           email: string
           full_name: string
           id?: string
+          phone_number?: string | null
           roll_number?: string | null
+          selected_club_id?: string | null
           skills?: string | null
           updated_at?: string
           user_id: string
+          year?: string | null
         }
         Update: {
+          branch?: string | null
           created_at?: string
           email?: string
           full_name?: string
           id?: string
+          phone_number?: string | null
           roll_number?: string | null
+          selected_club_id?: string | null
           skills?: string | null
           updated_at?: string
           user_id?: string
+          year?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_selected_club_id_fkey"
+            columns: ["selected_club_id"]
+            isOneToOne: false
+            referencedRelation: "clubs"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_clubs: {
         Row: {
@@ -204,6 +245,27 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      years: {
+        Row: {
+          created_at: string
+          id: string
+          year_name: string
+          year_value: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          year_name: string
+          year_value: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          year_name?: string
+          year_value?: string
+        }
+        Relationships: []
       }
     }
     Views: {
