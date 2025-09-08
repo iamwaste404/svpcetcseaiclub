@@ -1,6 +1,10 @@
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Code, Users, Leaf, Gamepad2, Briefcase, Palette, Camera, Settings } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
 
 const clubs = [
   {
@@ -70,6 +74,124 @@ const clubs = [
 ];
 
 const Clubs = () => {
+  const [user, setUser] = useState<any>(null);
+  const [userClubs, setUserClubs] = useState<string[]>([]);
+  const [loading, setLoading] = useState<string | null>(null);
+  const { toast } = useToast();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Check authentication status
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        setUser(session.user);
+        // Get user's club memberships
+        const { data } = await supabase
+          .from('user_clubs')
+          .select('club_id')
+          .eq('user_id', session.user.id);
+        
+        if (data) {
+          setUserClubs(data.map(item => item.club_id));
+        }
+      }
+    };
+
+    checkAuth();
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (session?.user) {
+        setUser(session.user);
+      } else {
+        setUser(null);
+        setUserClubs([]);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleJoinClub = async (clubId: string) => {
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please login to join a club.",
+        variant: "destructive",
+      });
+      navigate("/auth");
+      return;
+    }
+
+    setLoading(clubId);
+    
+    try {
+      const { error } = await supabase
+        .from('user_clubs')
+        .insert({
+          user_id: user.id,
+          club_id: clubId
+        });
+
+      if (error) {
+        if (error.code === '23505') { // Unique constraint violation
+          toast({
+            title: "Already a Member",
+            description: "You are already a member of this club!",
+            variant: "destructive",
+          });
+        } else {
+          throw error;
+        }
+      } else {
+        setUserClubs([...userClubs, clubId]);
+        toast({
+          title: "Successfully Joined!",
+          description: "Welcome to the club! Check your dashboard for updates.",
+        });
+      }
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to join club. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(null);
+    }
+  };
+
+  const handleLeaveClub = async (clubId: string) => {
+    if (!user) return;
+
+    setLoading(clubId);
+    
+    try {
+      const { error } = await supabase
+        .from('user_clubs')
+        .delete()
+        .eq('user_id', user.id)
+        .eq('club_id', clubId);
+
+      if (error) throw error;
+
+      setUserClubs(userClubs.filter(id => id !== clubId));
+      toast({
+        title: "Left Club",
+        description: "You have successfully left the club.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to leave club. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(null);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-12">
@@ -107,9 +229,35 @@ const Clubs = () => {
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <Button variant="club" className="w-full group-hover:shadow-glow">
-                    Join This Club
-                  </Button>
+                  {user ? (
+                    userClubs.includes(club.id.toString()) ? (
+                      <Button 
+                        variant="destructive" 
+                        className="w-full"
+                        onClick={() => handleLeaveClub(club.id.toString())}
+                        disabled={loading === club.id.toString()}
+                      >
+                        {loading === club.id.toString() ? "Leaving..." : "Leave Club"}
+                      </Button>
+                    ) : (
+                      <Button 
+                        variant="club" 
+                        className="w-full group-hover:shadow-glow"
+                        onClick={() => handleJoinClub(club.id.toString())}
+                        disabled={loading === club.id.toString()}
+                      >
+                        {loading === club.id.toString() ? "Joining..." : "Join This Club"}
+                      </Button>
+                    )
+                  ) : (
+                    <Button 
+                      variant="outline" 
+                      className="w-full border-primary/30 text-primary hover:bg-primary/10"
+                      onClick={() => navigate("/auth")}
+                    >
+                      Login to Join
+                    </Button>
+                  )}
                 </CardContent>
               </Card>
             );
@@ -125,7 +273,7 @@ const Clubs = () => {
               Join our community today and be part of something amazing. Register now to access all clubs and events.
             </p>
             <Button asChild variant="outline" size="lg" className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10">
-              <a href="/register">Complete Registration</a>
+              <a href={user ? "/dashboard" : "/auth"}>{user ? "Go to Dashboard" : "Complete Registration"}</a>
             </Button>
           </div>
         </div>
