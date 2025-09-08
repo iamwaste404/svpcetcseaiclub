@@ -279,16 +279,26 @@ const Auth = () => {
                     <SelectTrigger className="bg-slate-700/50 border-slate-600 text-white">
                       <SelectValue placeholder="Choose your club" />
                     </SelectTrigger>
-                    <SelectContent className="bg-slate-800 border-slate-600">
-                      {clubs.map((club) => (
+                    <SelectContent className="bg-slate-800 border-slate-600 z-50">
+                      {clubs.length > 0 ? (
+                        clubs.map((club) => (
+                          <SelectItem 
+                            key={club.id} 
+                            value={club.id}
+                            className="text-white hover:bg-slate-700 focus:bg-slate-700"
+                          >
+                            {club.name}
+                          </SelectItem>
+                        ))
+                      ) : (
                         <SelectItem 
-                          key={club.id} 
-                          value={club.id}
-                          className="text-white hover:bg-slate-700"
+                          value="no-clubs" 
+                          disabled
+                          className="text-slate-400"
                         >
-                          {club.name}
+                          No clubs available
                         </SelectItem>
-                      ))}
+                      )}
                     </SelectContent>
                   </Select>
                 </div>
