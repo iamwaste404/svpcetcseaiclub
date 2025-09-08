@@ -37,7 +37,7 @@ const HeroSection = () => {
               </Link>
             </Button>
             
-            <Button asChild variant="club" size="lg" className="text-lg px-8 py-4">
+            <Button asChild variant="default" size="lg" className="text-lg px-8 py-4">
               <Link to="/clubs">Explore Clubs</Link>
             </Button>
           </div>
